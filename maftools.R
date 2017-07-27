@@ -11,8 +11,8 @@ maf = annovarToMaf(annovar = "data/mutak2.GATK.mutac.raw.vcf.hg19_multianno.txt"
 
 
 laml = read.maf(maf = maf, removeSilent = TRUE, useAll = FALSE)
-#Typing laml shows basic summary of MAF file.
 
+#Typing laml shows basic summary of MAF file.
 laml
 
 #Shows sample summry.
@@ -29,11 +29,17 @@ getFields(laml)
 #Writes maf summary to an output file with basename laml.
 write.mafSummary(maf = laml, basename = 'data/laml')
 
-plotmafSummary(maf = laml, rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
+plotmafSummary(maf = laml, rmOutlier = FALSE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE,top=35,height=1000)
 
 
 #We will draw oncoplots for top ten mutated genes. (Removing non-mutated samples from the plot for better visualization)
-oncoplot(maf = laml, top = 10, removeNonMutated = TRUE)
+##example 
+#laml.maf <- system.file("extdata", "tcga_laml.maf.gz", package = "maftools")
+#laml <- read.maf(maf = laml.maf, removeSilent = TRUE, useAll = FALSE)
+#oncoplot(maf = laml, top = 35)
+
+
+oncoplot(maf = laml, top = 35, removeNonMutated = TRUE)
 
 
 #read TCGA maf file for LAML
@@ -73,32 +79,34 @@ plotTiTv(res = laml.titv)
 
 
 #Lets plot lollipop plot for DNMT3A, which is one of the most frequent mutated gene in Leukemia.
-dnmt3a.lpop = lollipopPlot(maf = laml, gene = 'DNMT3A', AACol = 'Protein_Change', showMutationRate = TRUE, domainLabelSize = 3, defaultYaxis = FALSE)
+dnmt3a.lpop = lollipopPlot(maf = laml, gene = 'TTN', AACol = 'Protein_Change', showMutationRate = TRUE, domainLabelSize = 3, defaultYaxis = FALSE)
 #
 
 
 #Lets plot mutations on KIT gene, without repel option.
-kit.lpop = lollipopPlot(maf = laml, gene = 'KIT', AACol = 'Protein_Change', labelPos = c(416, 418), refSeqID = 'NM_000222', domainLabelSize = 3)
+kit.lpop = lollipopPlot(maf = laml, gene = 'TTN', AACol = 'Protein_Change', labelPos = c(416, 418), refSeqID = 'NM_000222', domainLabelSize = 3)
 
 
 #Same plot with repel=TRUE
-kit.lpop = lollipopPlot(maf = laml, gene = 'KIT', AACol = 'Protein_Change', labelPos = c(416, 418), refSeqID = 'NM_000222', repel = TRUE, domainLabelSize = 3)
+kit.lpop = lollipopPlot(maf = laml, gene = 'TTN', AACol = 'Protein_Change', labelPos = c(416, 418), refSeqID = 'NM_000222', repel = TRUE, domainLabelSize = 3)
 
 
-laml.dnmt3a = lollipopPlot(maf = laml, gene = 'DNMT3A', AACol = 'Protein_Change', refSeqID = 'NM_175629', labelPos = 882, collapsePosLabel = TRUE, cBioPortal = TRUE, domainLabelSize = 3, defaultYaxis = FALSE)
+laml.dnmt3a = lollipopPlot(maf = laml, gene = 'TTN', AACol = 'Protein_Change', refSeqID = 'NM_175629', labelPos = 882, collapsePosLabel = TRUE, cBioPortal = TRUE, domainLabelSize = 3, defaultYaxis = FALSE)
 
 
-tcga.ab.009.seg <- system.file("extdata", "TCGA.AB.3009.hg19.seg.txt", package = "maftools")
+tcga.ab.009.seg <- system.file("extdata", "cpc2", package = "maftools")
+
+           verbose = TRUE
 plotCBSsegments(cbsFile = tcga.ab.009.seg, maf = laml, labelAll = TRUE)
 
 
 coad <- system.file("extdata", "coad.maf.gz", package = "maftools")
 coad = read.maf(maf = coad)
 
-coad.rf = rainfallPlot(maf = coad, detectChangePoints = TRUE, fontSize = 12, pointSize = 0.6)
+coad.rf = rainfallPlot(maf = laml, detectChangePoints = TRUE, fontSize = 12, pointSize = 0.6)
 
 
-laml.mutload = tcgaCompare(maf = laml, cohortName = 'Example-LAML')
+laml.mutload = tcgaCompare(maf = laml, cohortName = 'cpc2')
 
 
 geneCloud(input = laml, minMut = 3)
@@ -116,7 +124,7 @@ plotGisticResults(gistic = laml.gistic)
 
 
 #We will run mutExclusive on top 10 mutated genes. 
-laml.mut.excl = mutExclusive(maf = laml, top = 4)
+laml.mut.excl = mutExclusive(maf = laml, top = 1)
 head(laml.mut.excl)
 
 
@@ -129,7 +137,7 @@ head(laml.sig)
 plotOncodrive(res = laml.sig, fdrCutOff = 0.1, useFraction = TRUE)
 
 
-laml.pfam = pfamDomains(maf = laml, AACol = 'Protein_Change', top = 10)
+laml.pfam = pfamDomains(maf = laml, AACol = 'Protein_Change', top = 3)
 
 
 #Protein summary (Printing first 7 columns for display convenience)
@@ -151,5 +159,5 @@ head(laml.surv)
 
 
 #Survival analysis based on grouping of DNMT3A mutation status
-laml.dnmt3a.surv = mafSurvival(maf = laml, clinicalData = laml.surv, genes = 'DNMT3A', time = 'days_to_last_followup', Status = 'Overall_Survival_Status', showConfInt = TRUE)
+laml.dnmt3a.surv = mafSurvival(maf = laml, clinicalData = laml.surv, genes = 'TTN', time = 'days_to_last_followup', Status = 'Overall_Survival_Status', showConfInt = TRUE)
 #
